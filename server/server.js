@@ -21,14 +21,14 @@ io.on('connection', (socket) => {
   socket.broadcast.emit('newMessage', generateMessage('Admin', 'New user joined'));
 
   socket.on('createMessage', (message, callback) =>{
-    console.log('Got it', message);
+    console.log('Create a message ', message)
     io.emit('newMessage', generateMessage(message.from, message.text));
-    callback('This is from server');
+    callback()
   });
 
   socket.on('createLocation', (coords) =>{
     io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
-    
+
   });
 
 

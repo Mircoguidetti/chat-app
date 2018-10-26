@@ -19,38 +19,57 @@ function scrollToBottom () {
 
 socket.on('connect', function () {
   console.log('Connected to server');
+  let params = jQuery.deparam(window.location.search);
 
-  socket.on('newMessage', function (message) {
+  socket.emit('join', params, function(error) {
+    if(error){
+      alert(error);
+      window.location.href = '/';
+    }else{
+      console.log('No error')
+    }
 
-    let formattedTime = moment(message.createdAt).format('h:mm a');
-    let template = jQuery('#message-template').html();
-    let html = Mustache.render(template, {
-      text: message.text,
-      from: message.from,
-      createdAt: formattedTime
-
-    });
-    jQuery('#messages').append(html);
-    scrollToBottom()
   });
+});
 
-  socket.on('newLocationMessage', function (message) {
-    let formattedTime = moment(message.createdAt).format('h:mm a');
-    let template = jQuery('#location-message-template').html();
-    let html = Mustache.render(template, {
-      url: message.url,
-      from: message.from,
-      createdAt: formattedTime,
-    });
-
-    jQuery('#messages').append(html);
-    scrollToBottom()
+socket.on('newMessage', function (message) {
+  let formattedTime = moment(message.createdAt).format('h:mm a');
+  let template = jQuery('#message-template').html();
+  let html = Mustache.render(template, {
+    text: message.text,
+    from: message.from,
+    createdAt: formattedTime
   });
+  jQuery('#messages').append(html);
+  scrollToBottom()
+});
+
+socket.on('newLocationMessage', function (message) {
+  let formattedTime = moment(message.createdAt).format('h:mm a');
+  let template = jQuery('#location-message-template').html();
+  let html = Mustache.render(template, {
+    url: message.url,
+    from: message.from,
+    createdAt: formattedTime,
+  });
+  jQuery('#messages').append(html);
+  scrollToBottom()
 });
 
 
 socket.on('disconnect', function () {
   console.log('Disconnected from the  server');
+});
+
+socket.on('updateUserlist', function (users) {
+  let ol = jQuery('<ol></ol>');
+
+  users.forEach(function (user) {
+    ol.append(jQuery('<li></li>').text(user));
+
+  });
+
+  jQuery('#users').html(ol);
 });
 
 jQuery('#message-form').on('submit', function(e) {
